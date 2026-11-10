@@ -1,0 +1,6 @@
+{
+  "name": "Roast Scoreboard",
+  "description": "Real-time Live Roast Scoreboard component built with shadcn/ui.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

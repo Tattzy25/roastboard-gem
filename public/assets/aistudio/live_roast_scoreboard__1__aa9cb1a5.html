@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roast Scoreboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      background: #000000;
+      color: #ffffff;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: auto;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      overflow: hidden;
+    }
+
+    #roast-scoreboard {
+      width: 100%;
+      max-width: 350px;
+      height: 124px;
+      margin: 0 auto;
+      padding: 0;
+      background: #050505;
+      border: 1.5px solid #b5ff3b;
+      border-radius: 16px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr);
+      overflow: hidden;
+    }
+
+    .divider {
+      background: rgba(181, 255, 59, 0.35);
+      height: 100%;
+    }
+
+    .side {
+      padding: 6px 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      text-align: center;
+      min-width: 0;
+    }
+
+    .header {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: baseline;
+      gap: 5px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(13px, 4vw, 17px);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: 0.02em;
+      color: #b5ff3b;
+    }
+
+    .conf {
+      color: #737373;
+      font-size: clamp(10px, 2.8vw, 11px);
+      font-weight: 700;
+    }
+
+    .score {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(44px, 13.5vw, 56px);
+      font-weight: 800;
+      line-height: 0.85;
+      margin: 0;
+      padding: 0;
+      letter-spacing: -0.05em;
+      color: #ffffff;
+      text-align: center;
+      width: 100%;
+    }
+
+    .footer {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      text-align: center;
+    }
+
+    .label {
+      width: 100%;
+      font-size: clamp(9px, 2.6vw, 11px);
+      font-weight: 800;
+      text-transform: uppercase;
+      color: #b5ff3b;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: center;
+    }
+
+    .prob {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(8px, 2.3vw, 10px);
+      color: #888888;
+      text-align: center;
+    }
+
+    @media (min-width: 420px) {
+      #roast-scoreboard {
+        max-width: 400px;
+        height: 140px;
+      }
+      .header {
+        font-size: 18px;
+      }
+      .score {
+        font-size: 62px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <section id="roast-scoreboard" role="region" aria-label="ROAST_SCOREBOARD">
+    <!-- AI SIDE -->
+    <div class="side" id="side-ai" role="group" aria-labelledby="ai-name">
+      <div class="header">
+        <span id="ai-name" aria-label="THE_AI">THE_AI</span>
+        <span class="conf" id="ai-conf" aria-label="--%">--%</span>
+      </div>
+      <output class="score" id="ai-score" aria-live="polite" aria-atomic="true" aria-label="0.00">0.00</output>
+      <div class="footer">
+        <div class="label" id="ai-label" aria-live="polite" aria-label="---">---</div>
+        <div class="prob" id="ai-prob" aria-label="0% PROB">0% PROB</div>
+      </div>
+    </div>
+
+    <div class="divider" role="separator" aria-orientation="vertical"></div>
+
+    <!-- HUMAN SIDE -->
+    <div class="side" id="side-human" role="group" aria-labelledby="human-name">
+      <div class="header">
+        <span id="human-name" aria-label="THE_HUMAN">THE_HUMAN</span>
+        <span class="conf" id="human-conf" aria-label="--%">--%</span>
+      </div>
+      <output class="score" id="human-score" aria-live="polite" aria-atomic="true" aria-label="0.00">0.00</output>
+      <div class="footer">
+        <div class="label" id="human-label" aria-live="polite" aria-label="---">---</div>
+        <div class="prob" id="human-prob" aria-label="0% PROB">0% PROB</div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const QUESTIONS = [
+      {
+        "type": "score",
+        "instructions": "Score the brutality, wit, and impact of this roast chunk using the 0 to 5 scale below. This chunk is from a live roast battle where the AI has live camera vision of the human (their face, room, and real-time reactions), while the human is looking at a floating digital orb representing the AI. Factor in the asymmetry: the AI has a full visual target to pick apart, while the human only has a floating orb and the AI's voice/personality to attack. Hold the AI to a high standard so lazy visual observations score low, and reward the human when they find creative ways to violate a floating orb and its attitude.",
+        "levels": [
+          {
+            "label": "0- Trash Tier",
+            "description": "Weak, stumbling, or completely generic attempt; either the AI made a lazy, obvious visual callout with no punchline, or the human threw a weak insult."
+          },
+          {
+            "label": "1- Mild Burn",
+            "description": "A basic surface-level jab that lands lightly, but lacks real venom, cleverness, or devastating timing."
+          },
+          {
+            "label": "2- Solid Cook",
+            "description": "A clean, sharp hit either the AI used its camera vision to snipe a specific detail effectively, or the human flipped the orb/AI persona angle into a solid punchline."
+          },
+          {
+            "label": "3- Violated",
+            "description": "A ruthless, highly specific strike that exploits a real flaw, awkward reaction, or conversational opening with brutal precision."
+          },
+          {
+            "label": "4- Smokathon Domination",
+            "description": "Total annihilation, either the AI weaponized its live vision for a surgical, soul-crushing takedown, or the human dismantled the orb and the AI's entire existence with zero mercy."
+          },
+          {
+            "label": "5- Extinction Event",
+            "description": "God-tier, once-in-a-lifetime execution; a roast so diabolical, unhinged, and layered that it permanently ends the battle on the spot either the AI read the human's entire life story off a single camera frame, or the human broke the orb's logic so badly the machine practically needs a factory reset."
+          }
+        ]
+      }
+    ];
+
+    function setElementTextAndAria(id, value) {
+      const el = document.getElementById(id);
+      el.textContent = value;
+      el.setAttribute("aria-label", value);
+    }
+
+    function updateSide(sidePrefix, answer) {
+      const top = [...answer.probabilities].sort((a, b) => b.probability - a.probability)[0];
+      const formattedScore = Number(answer.score).toFixed(2);
+      const formattedConf = Math.round(answer.confidence * 100) + "%";
+      const formattedProb = Math.round(top.probability * 100) + "% PROB";
+
+      setElementTextAndAria(`${sidePrefix}-score`, formattedScore);
+      setElementTextAndAria(`${sidePrefix}-conf`, formattedConf);
+      setElementTextAndAria(`${sidePrefix}-label`, top.label);
+      setElementTextAndAria(`${sidePrefix}-prob`, formattedProb);
+    }
+
+    async function scoreRoast(input) {
+      const envKey = (typeof window !== "undefined" && window.OPENAI_API_KEY)
+        || (typeof process !== "undefined" && process.env && process.env.OPENAI_API_KEY)
+        || "";
+
+      const endpoint = envKey ? "https://api.openai.com/v1/decisions" : "/api/decisions";
+      const headers = { "Content-Type": "application/json" };
+      if (envKey) {
+        headers["Authorization"] = `Bearer ${envKey}`;
+      }
+
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify({
+          model: "gpt-6-luna",
+          input: input,
+          questions: QUESTIONS
+        })
+      });
+
+      const data = await response.json();
+      const answer = data.answers[0];
+      const side = input.trim().toLowerCase().startsWith("the_ai") ? "ai" : "human";
+      updateSide(side, answer);
+      return data;
+    }
+
+    window.addEventListener("message", (event) => {
+      if (event.data && typeof event.data.roastInput === "string") {
+        scoreRoast(event.data.roastInput);
+      }
+    });
+
+    window.scoreRoast = scoreRoast;
+    window.updateSide = updateSide;
+  </script>
+</body>
+</html>
